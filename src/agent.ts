@@ -1,40 +1,4 @@
-interface Opportunity {
-  title: string;
-  organization: string;
-  eligibility: string;
-  status: "eligible" | "not-eligible" | "review";
-}
-
-function checkEligibility(
-  opportunity: Opportunity,
-  profile: {
-    degree: string;
-    field: string;
-    student: boolean;
-  }
-): Opportunity {
-  const text = (
-    opportunity.eligibility +
-    " " +
-    opportunity.title
-  ).toLowerCase();
-
-  const fieldMatch =
-    text.includes(profile.field.toLowerCase()) ||
-    text.includes("any field");
-
-  if (profile.student && fieldMatch) {
-    return {
-      ...opportunity,
-      status: "eligible"
-    };
-  }
-
-  return {
-    ...opportunity,
-    status: "review"
-  };
-}
+import { searchOpportunities } from "./search";
 
 const userProfile = {
   degree: "M.Sc.",
@@ -42,22 +6,17 @@ const userProfile = {
   student: true
 };
 
-const opportunity: Opportunity = {
-  title: "Data Analytics Internship",
-  organization: "Example Organization",
-  eligibility: "Open to students from any field",
-  status: "review"
-};
+const results = searchOpportunities("Data");
 
-const result = checkEligibility(opportunity, userProfile);
-
-console.log("ApplyGuard AI");
+console.log("🛡️ ApplyGuard AI");
 console.log("----------------");
-console.log(`Opportunity: ${result.title}`);
-console.log(`Organization: ${result.organization}`);
-console.log(`Eligibility status: ${result.status}`);
 
-if (result.status === "eligible") {
-  console.log("Application prepared.");
-  console.log("⚠️ Human approval required before submission.");
-  }
+for (const opportunity of results) {
+  console.log(`Opportunity: ${opportunity.title}`);
+  console.log(`Organization: ${opportunity.organization}`);
+  console.log(`Eligibility: ${opportunity.eligibility}`);
+  console.log(`Deadline: ${opportunity.deadline}`);
+  console.log("----------------");
+}
+
+console.log("Human approval is required before any submission.");
