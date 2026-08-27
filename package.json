@@ -1,14 +1,14 @@
+
 {
   "name": "applyguard-ai",
   "version": "1.0.0",
   "description": "A safe AI agent that researches opportunities, checks eligibility, prepares applications, and asks for approval before submission.",
   "type": "module",
   "scripts": {
-    "start": "tsx src/agent.ts",
-    "dev": "tsx src/agent.ts"
+    "start": "tsx src/index.ts",
+    "dev": "tsx src/index.ts"
   },
   "dependencies": {
-    "@truefoundry/trueforge": "latest",
     "dotenv": "latest"
   },
   "devDependencies": {
