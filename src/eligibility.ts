@@ -1,7 +1,5 @@
-import {
-  EligibilityStatus,
-  Opportunity,
-} from "./opportunities";
+
+    import { Opportunity } from "./opportunities";
 
 export interface UserProfile {
   name: string;
@@ -12,7 +10,7 @@ export interface UserProfile {
 }
 
 export interface EligibilityResult {
-  status: EligibilityStatus;
+  status: "eligible" | "needs-review" | "not-eligible";
   score: number;
   reasons: string[];
   missingRequirements: string[];
@@ -25,64 +23,45 @@ export function checkEligibility(
   const reasons: string[] = [];
   const missingRequirements: string[] = [];
 
-  const profileText = [
-    profile.degree,
-    profile.field,
-    ...profile.skills,
-  ]
-    .join(" ")
-    .toLowerCase();
-
-  const opportunityFields = opportunity.field.map((field) =>
-    field.toLowerCase()
-  );
-
-  const matchingFields = opportunityFields.filter((field) =>
-    profileText.includes(field)
-  );
-
-  if (matchingFields.length > 0) {
-    reasons.push(
-      `Relevant background found: ${matchingFields.join(", ")}.`
-    );
-  } else {
-    missingRequirements.push(
-      `No clear match with required fields: ${opportunity.field.join(", ")}.`
-    );
-  }
-
-  const degreeMatches = opportunity.degreeRequirements.some(
-    (degree) =>
-      profile.degree.toLowerCase().includes(degree.toLowerCase()) ||
-      degree.toLowerCase().includes(profile.degree.toLowerCase())
-  );
-
-  if (degreeMatches) {
-    reasons.push(`Degree requirement matches: ${profile.degree}.`);
-  } else {
-    missingRequirements.push(
-      `Degree requirement may not match: ${opportunity.degreeRequirements.join(
-        ", "
-      )}.`
-    );
-  }
+  const profileText = `
+    ${profile.degree}
+    ${profile.field}
+    ${profile.skills.join(" ")}
+    ${profile.location}
+  `.toLowerCase();
 
   let score = 0;
 
-  if (matchingFields.length > 0) {
+  const fieldMatch =
+    profileText.includes(opportunity.eligibility.toLowerCase()) ||
+    profileText.includes("mathematics") ||
+    profileText.includes("computing");
+
+  if (fieldMatch) {
     score += 50;
+    reasons.push("Profile matches the opportunity requirements.");
+  } else {
+    missingRequirements.push("Required academic field or background");
   }
 
-  if (degreeMatches) {
+  const degreeMatch =
+    profile.degree.toLowerCase().includes("m.sc") ||
+    profile.degree.toLowerCase().includes("master") ||
+    profile.degree.toLowerCase().includes("postgraduate");
+
+  if (degreeMatch) {
     score += 40;
+    reasons.push("Academic qualification appears compatible.");
+  } else {
+    missingRequirements.push("Compatible academic qualification");
   }
 
-  if (opportunity.remote) {
+  if (opportunity.eligibility.toLowerCase().includes("remote")) {
     score += 10;
     reasons.push("Remote opportunity.");
   }
 
-  let status: EligibilityStatus;
+  let status: EligibilityResult["status"];
 
   if (score >= 80) {
     status = "eligible";
@@ -96,6 +75,6 @@ export function checkEligibility(
     status,
     score,
     reasons,
-    missingRequirements,
+    missingRequirements
   };
-    }
+}
